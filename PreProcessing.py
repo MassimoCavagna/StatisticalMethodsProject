@@ -19,6 +19,7 @@ def image_info(image_path : str) -> None:
     info['format'] = im.format
     print(info)
     display(im)
+  im.close()
     
 def get_images_format(source_path: str) -> list:
   """
@@ -36,6 +37,7 @@ def get_images_format(source_path: str) -> list:
       try:
         with Image.open(source_path + name) as im:
           s.add(im.format)
+        im.close()
       except UnidentifiedImageError:
         s.add('Unidentified')
   return list(s)
@@ -62,6 +64,7 @@ def to_RGB_JPEG(source_path : str):
         elif im.mode != "RGB":
           im = im.convert(mode = "RGB")
           im.save(f'{source_path}/{name}')
+      im.close()
     except UnidentifiedImageError:
       errs.append(source_path + name)
       pass
@@ -85,6 +88,7 @@ def sum_image_sizes(source_path : str) -> tuple:
     with Image.open(f'{source_path}/{name}') as im:
       x += im.size[0]
       y += im.size[1]
+    im.close()
 
   return x, y, len(images_names)
 
@@ -122,3 +126,4 @@ def crop_resize_images(source_path : str, destination_path : str = None, target_
         im = im.crop(bbox)
 
       im.resize(target_size).save(destination_path + name)
+    im.close()
