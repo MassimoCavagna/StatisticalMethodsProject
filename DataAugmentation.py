@@ -54,6 +54,7 @@ def transform_images(source_paths : list, destination_path : str, transformation
         Image.Image.rotate(im, theta).save(destination_path + "r_" + name.split("/")[-1])
       elif transformation == 'flip':
         ImageOps.flip(im).save(destination_path + "f_" + name.split("/")[-1])
+    im.close()
 
 def apply_filter(source_paths : list, destination_path : str, filter : str):
   """
@@ -89,4 +90,4 @@ def apply_filter(source_paths : list, destination_path : str, filter : str):
         ImageEnhance.Contrast(im).enhance(100.).save(destination_path + "c_" + name.split("/")[-1])
       elif filter == 'color':
         ImageEnhance.Color(im).enhance(1.5).save(destination_path + "cl_" + name.split("/")[-1])
-          
+    im.close()
