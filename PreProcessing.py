@@ -1,3 +1,9 @@
+from PIL import Image, ImageChops, UnidentifiedImageError, ImageOps
+from PIL.Image import NEAREST
+from PIL.JpegImagePlugin import JpegImageFile
+from tqdm.notebook import tqdm_notebook
+import os
+
 def image_info(image_path : str) -> None:
   """
   This function reads the specified image, prints its informations and displays them
