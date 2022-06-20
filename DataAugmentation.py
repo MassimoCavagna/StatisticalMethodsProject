@@ -44,7 +44,7 @@ def transform_images(source_paths : list, destination_path : str, transformation
   if not os.path.isdir(destination_path):
     os.mkdir(destination_path)
 
-  for name in tqdm_notebook(source_paths, desc = "applying '" + transformation + "' over " + source_paths[0].split('/')[0]):
+  for name in tqdm_notebook(source_paths, desc = "applying '" + transformation + "' over " + source_paths[0].split('/')[1]):
     with Image.open(name) as im:
       if transformation == 'mirror':  
         ImageOps.mirror(im).save(destination_path + "m_" + name.split("/")[-1])
@@ -78,7 +78,7 @@ def apply_filter(source_paths : list, destination_path : str, filter : str):
   if not os.path.isdir(destination_path):
     os.mkdir(destination_path)
 
-  for name in tqdm_notebook(source_paths, desc = "applying '" + filter + "' over " + source_paths[0].split('/')[0]):
+  for name in tqdm_notebook(source_paths, desc = "applying '" + filter + "' over " + source_paths[0].split('/')[1]):
     with Image.open(name) as im:
       if filter == 'blur':
         im.filter(ImageFilter.BoxBlur(5)).save(destination_path + "b_" + name.split("/")[-1])
