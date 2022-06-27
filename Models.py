@@ -100,7 +100,7 @@ def build_autoencoder(img_shape, code_size):
 
     return autoencoder, encoder
   
-  def plot_history(history : dict, same_figure = False):
+def plot_history(history : dict, same_figure = False):
   """
   This function is used to easily plot the history returned by any model in the form of a dictionary.
   For each metric it plots a lineplot describing the model's trend through all the epochs
@@ -108,7 +108,7 @@ def build_autoencoder(img_shape, code_size):
 
   history = history.history
   keys, val_keys = [k for k in history.keys() if "val_" not in k], [k for k in history.keys() if "val_" in k]
-  
+
   data = pd.DataFrame({k : history[k] for k in keys}, columns = keys)
   data["type"] = "Training"
   data["epoch"] = list(range(len(data["type"])))
