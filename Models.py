@@ -74,3 +74,28 @@ def binary_FFNN_model(encoder: Model,
         run_eagerly=True
     )
   return ffnn
+
+def build_autoencoder(img_shape, code_size):
+    """
+    This function build an autoecoder with a encoding layer of the given code_size.
+    Parameters:
+      - img_shape: the image shape used in the input and output layer of the model
+      - code_size: the number of neurons used to encode the image
+    Returns:
+      - The compiled autoencoder and the compiled encoder
+    """
+
+    encoder_input = Input(shape = img_shape)
+    encoder = Flatten()(encoder_input)
+    encoder_output = Dense(code_size)(encoder)
+
+    encoder = Model(encoder_input, encoder_output, name = 'Encoder')
+
+    decoder = Dense(np.prod(img_shape))(encoder_output)
+    reconstruction = Reshape(img_shape)(decoder)
+
+
+    autoencoder = Model(encoder_input,reconstruction, name = 'AutoEncoder')
+    autoencoder.compile(optimizer='adamax', loss='mse')
+
+    return autoencoder, encoder
