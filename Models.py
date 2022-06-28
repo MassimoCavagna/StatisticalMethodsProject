@@ -104,13 +104,14 @@ def build_autoencoder(img_shape, code_size):
 
     return autoencoder, encoder
   
-def plot_history(histories : list, same_figure = False):
+def plot_history(histories : list, title : str, same_figure = False):
   """
   This function is used to easily plot the history returned by any model in the form of a dictionary.
   For each metric it plots a lineplot describing the model's trend through all the epochs
   """
   if same_figure:
-    plt.figure(figsize = (15,5))
+    fig = plt.figure(figsize = (15,5))
+    fig.suptitle(title)
 
   
   df = pd.DataFrame()
@@ -118,31 +119,31 @@ def plot_history(histories : list, same_figure = False):
   for i, history in enumerate(histories):
     if type(history) != dict:
       history = history.history
+
     keys, val_keys = [k for k in history.keys() if "val_" not in k], [k for k in history.keys() if "val_" in k]
 
     data = pd.DataFrame({k : history[k] for k in keys}, columns = keys)
-    data["type"] = "T " + str(i) + "-th fold"
+    data["type"] = "T_" + str(i) + "_fold"
     data["epoch"] = list(range(len(data["type"])))
 
     val_data = pd.DataFrame({k.replace("val_", "") : history[k] for k in val_keys}, columns = keys)
-    val_data["type"] = "V " + str(i) + "-th fold"
+    val_data["type"] = "V_" + str(i) + "_fold"
     val_data["epoch"] = list(range(len(val_data["type"])))
 
     if df.empty:
       df = pd.concat([data, val_data]).reset_index(drop=True)
     else:
-      df = pd.concat([df, data, val_data]).reset_index(drop=True)
+      tmp = pd.concat([data, val_data]).reset_index(drop=True)
+      df = pd.concat([df, tmp]).reset_index(drop=True)
     sns.set_style("darkgrid")
     
   df.sort_values(by=['type'], inplace = True)
   df.reset_index(drop=True)
-
   for i, k in enumerate(df.columns[0:-2]):
-    n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V',case=False)]) > 0 else (df.shape[0]-1, True)
+    n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V', case=False)]) > 0 else (df.shape[0]-1, True)
     plt.subplot(1, len(df.columns[0:-2]), 1 + i)
     plt.title(k)
-    sns.lineplot(data = df.loc[:n], x = "epoch", y = k, hue = "type", palette = sns.color_palette("Blues", len(histories)))
+    sns.lineplot(data = df.iloc[:int(n)], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["blue"]*len(histories), len(histories)))
     if not is_val_empty:
-      sns.lineplot(data = df.loc[n+1:], x = "epoch", y = k, hue = "type", palette = sns.color_palette("magma", len(histories)))
-    
+      sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["red"]*len(histories), len(histories)))
     
