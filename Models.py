@@ -141,7 +141,8 @@ def plot_history(histories : list, same_figure = False):
     n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V',case=False)]) > 0 else (df.shape[0]-1, True)
     plt.subplot(1, len(df.columns[0:-2]), 1 + i)
     plt.title(k)
-    sns.lineplot(data = df.loc[:n], x = "epoch", y = k, hue = "type", palette = sns.color_palette("Blues", 5))
+    sns.lineplot(data = df.loc[:n], x = "epoch", y = k, hue = "type", palette = sns.color_palette("Blues", len(histories)))
     if not is_val_empty:
-      sns.lineplot(data = df.loc[n+1:], x = "epoch", y = k, hue = "type", palette = sns.color_palette("magma", 0))
+      sns.lineplot(data = df.loc[n+1:], x = "epoch", y = k, hue = "type", palette = sns.color_palette("magma", len(histories)))
+    
     
