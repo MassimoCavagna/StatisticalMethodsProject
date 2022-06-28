@@ -13,6 +13,11 @@ from tensorflow.keras.losses import MeanSquaredError, BinaryCrossentropy
 from tensorflow.keras.metrics import Metric
 from tensorflow.keras.metrics import Accuracy, TruePositives, TrueNegatives, FalsePositives, FalseNegatives, BinaryAccuracy, Precision, Recall, AUC
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 def binary_FFNN_model(encoder: Model,
                       input_shape,
                       hidden_layers: list,
@@ -99,32 +104,44 @@ def build_autoencoder(img_shape, code_size):
 
     return autoencoder, encoder
   
-def plot_history(history : dict, same_figure = False):
+def plot_history(histories : list, same_figure = False):
   """
   This function is used to easily plot the history returned by any model in the form of a dictionary.
   For each metric it plots a lineplot describing the model's trend through all the epochs
   """
-
-  history = history.history
-  keys, val_keys = [k for k in history.keys() if "val_" not in k], [k for k in history.keys() if "val_" in k]
-
-  data = pd.DataFrame({k : history[k] for k in keys}, columns = keys)
-  data["type"] = "Training"
-  data["epoch"] = list(range(len(data["type"])))
-
-  val_data = pd.DataFrame({k.replace("val_", "") : history[k] for k in val_keys}, columns = keys)
-  val_data["type"] = "Validation"
-  val_data["epoch"] = list(range(len(val_data["type"])))
-
-  df = pd.concat([data, val_data]).reset_index()
-  sns.set_style("darkgrid")
   if same_figure:
     plt.figure(figsize = (15,5))
 
-  for i, k in enumerate(df.columns[1:-2]):
-    plt.subplot(1, len(df.columns[1:-2]), 1 + i)
+  
+  df = pd.DataFrame()
+
+  for i, history in enumerate(histories):
+    if type(history) != dict:
+      history = history.history
+    keys, val_keys = [k for k in history.keys() if "val_" not in k], [k for k in history.keys() if "val_" in k]
+
+    data = pd.DataFrame({k : history[k] for k in keys}, columns = keys)
+    data["type"] = "T " + str(i) + "-th fold"
+    data["epoch"] = list(range(len(data["type"])))
+
+    val_data = pd.DataFrame({k.replace("val_", "") : history[k] for k in val_keys}, columns = keys)
+    val_data["type"] = "V " + str(i) + "-th fold"
+    val_data["epoch"] = list(range(len(val_data["type"])))
+
+    if df.empty:
+      df = pd.concat([data, val_data]).reset_index(drop=True)
+    else:
+      df = pd.concat([df, data, val_data]).reset_index(drop=True)
+    sns.set_style("darkgrid")
+    
+  df.sort_values(by=['type'], inplace = True)
+  df.reset_index(drop=True)
+
+  for i, k in enumerate(df.columns[0:-2]):
+    n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V',case=False)]) > 0 else (df.shape[0]-1, True)
+    plt.subplot(1, len(df.columns[0:-2]), 1 + i)
     plt.title(k)
-    sns.lineplot(data = df, x = "epoch", y = k, hue = "type")
-
-  if same_figure:
-    plt.figure(figsize = (15,5))
+    sns.lineplot(data = df.loc[:n], x = "epoch", y = k, hue = "type", palette = sns.color_palette("Blues", 5))
+    if not is_val_empty:
+      sns.lineplot(data = df.loc[n+1:], x = "epoch", y = k, hue = "type", palette = sns.color_palette("magma", 0))
+    
