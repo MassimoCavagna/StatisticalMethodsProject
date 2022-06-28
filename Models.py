@@ -70,8 +70,7 @@ def binary_FFNN_model(encoder: Model,
   ffnn.compile(
         optimizer = optimizer,
         loss = loss,
-        metrics = metrs,
-        run_eagerly=True
+        metrics = metrs
     )
   return ffnn
 
