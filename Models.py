@@ -58,7 +58,7 @@ def binary_FFNN_model(encoder: Model,
   hidden = Rescaling(1./255)(pre)
   
   for i in hidden_layers:
-    # hidden = BatchNormalization()(hidden)
+    hidden = BatchNormalization()(hidden)
     hidden = ReLU()(hidden)
     hidden = Dropout(.3)(hidden)
     hidden = Dense(i, activation = hid_layers_act)(hidden)
