@@ -147,3 +147,49 @@ def plot_history(histories : list, title : str, same_figure = False):
     if not is_val_empty:
       sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["red"]*len(histories), len(histories)))
     
+def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1, encoder_mode: bool = False):
+  """
+  This function is used to read an image by its path, convert it to jpeg and resize it to the given target size.
+  
+  Parameters:
+    - image_path: the path's image
+    - label: the label associated with the image
+    - target_size: the final size the image will have
+    - color_mode: 1 for grayscale 3 for RGB
+    - encoder_mode: by setting this to True, the labels corresponds to the image itself.
+  
+  Returns:
+    An image, label tuple
+  """
+  image = tf.io.read_file(image_path)
+  data = tf.io.decode_jpeg(image, channels = color_mode)
+  data = tf.image.resize(data, target_size)
+  image = tf.reshape(data, target_size + (color_mode, ) )
+ 
+  return (image, label) if not encoder_mode else (image, image)
+
+def build_dataset(data, labels, color_mode : int, batch_size = 50, target_size = (75, 75), encoder_mode: bool = False):
+  """
+  This function uses "mapping function" to build the images dataset
+
+  Parameters:
+    - data: a list of images paths
+    - labels: the associated labels
+    - batch_size: the size of the batches the Dataset is divided into
+    - target_size: the final size the image will have
+    - encoder_mode: by setting this to True, the labels corresponds to the image itself
+
+  Returns:
+    A tensorflow Dataset
+  """
+  dataset = tf.data.Dataset.from_tensor_slices((data, labels))\
+                            .map(
+                                  lambda data, label: mapping_function( data, label, 
+                                                                        encoder_mode = encoder_mode,
+                                                                        target_size = img_size,
+                                                                        color_mode = color_mode
+                                                                      ), 
+                                  num_parallel_calls=tf.data.experimental.AUTOTUNE
+                                 )\
+                            .batch(batch_size)
+  return dataset
