@@ -13,6 +13,8 @@ from tensorflow.keras.losses import MeanSquaredError, BinaryCrossentropy
 from tensorflow.keras.metrics import Metric
 from tensorflow.keras.metrics import Accuracy, TruePositives, TrueNegatives, FalsePositives, FalseNegatives, BinaryAccuracy, Precision, Recall, AUC
 
+import tensorflow as tf
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
