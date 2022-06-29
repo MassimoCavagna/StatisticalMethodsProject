@@ -188,7 +188,7 @@ def build_dataset(data, labels, color_mode : int, batch_size = 50, target_size =
                             .map(
                                   lambda data, label: mapping_function( data, label, 
                                                                         encoder_mode = encoder_mode,
-                                                                        target_size = img_size,
+                                                                        target_size = target_size,
                                                                         color_mode = color_mode
                                                                       ), 
                                   num_parallel_calls=tf.data.experimental.AUTOTUNE
