@@ -170,7 +170,7 @@ def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1, 
  
   return (image, label) if not encoder_mode else (image, image)
 
-def build_dataset(data, labels, color_mode : int, batch_size = 50, target_size = (75, 75), encoder_mode: bool = False):
+def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (75, 75), encoder_mode: bool = False):
   """
   This function uses "mapping function" to build the images dataset
 
