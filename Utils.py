@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import os
+import json
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -96,3 +98,31 @@ def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (
                                  )\
                             .batch(batch_size)
   return dataset
+
+def save_json_history(filename: str, histories: dict, key: str):
+  """
+  This function saves the histories returned by the model training into JSON file
+  
+  Parameters:
+    - filename: name of the JSON file the histories are saved into
+    - histories: a dict containing the histories
+    - key: the key in histories the function is going to update the value of
+  
+  Returns:
+    None
+  """
+  if os.path.isfile(filename) is False:
+    with open(filename, 'w') as f:
+      json.dump({key: [h.history for h in histories]}, f)
+      print("New file saved")
+      f.close()
+  else:
+    with open(filename, 'r') as f:
+      results = json.load(f)
+      f.close()
+      results[key] =  [h.history for h in histories]
+      
+    with open(filename, 'w') as f:
+      json.dump(results, f)
+      print("File saved")
+      f.close()
