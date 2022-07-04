@@ -37,6 +37,7 @@ def binary_FFNN_model(encoder: Model,
                                         FalsePositives(),
                                         FalseNegatives()
                                       ],
+                      dropout : Float
                       
                       ) -> Model:
   """ 
@@ -67,7 +68,7 @@ def binary_FFNN_model(encoder: Model,
   for i in hidden_layers:
     hidden = BatchNormalization()(hidden)
     hidden = ReLU()(hidden)
-    hidden = Dropout(.3)(hidden)
+    hidden = Dropout(dropout)(hidden)
     hidden = Dense(i, activation = hid_layers_act)(hidden)
     
   output_layer = Dense(1, activation = outp_layer_act)
