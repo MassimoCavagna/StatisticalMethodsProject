@@ -37,7 +37,7 @@ def binary_FFNN_model(encoder: Model,
                                         FalsePositives(),
                                         FalseNegatives()
                                       ],
-                      dropout : Float
+                      dropout : Float = 50
                       
                       ) -> Model:
   """ 
