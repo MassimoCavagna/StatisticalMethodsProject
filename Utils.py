@@ -126,3 +126,101 @@ def save_json_history(filename: str, histories: dict, key: str):
       json.dump(results, f)
       print("File saved")
       f.close()
+      
+def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels: list, epochs: int = 10, color_mode: int = 3, desc: str = "", batch_size: int = 50):
+  """
+  This function perform a five fold cross validation over the model_f passed,
+  retrieving average error obtained
+  Params:
+  - model_f: the function to create the model
+  - parameters: the list of parameters used to create the model
+  - dataset: the list of paths to the images
+  - labels: the list of labels
+  - epochs: the nubmer of epochs for the training
+  - color_mode: the number of channel of the iamge (1 or 3)
+  - desc: the description of for the progress bar
+  - color_mode: 1 or 3
+  - batch_size: the batch size
+
+  Return:
+  The average error of model_f with the specified parameters
+
+  """
+  kf = KFold(n_splits=5, shuffle=True, random_state=69)
+  error = 0
+
+  for train_index, val_index in tqdm_notebook(kf.split(dataset, labels), desc = f"Five fold {desc}:"):
+
+      x_train, y_train = dataset[train_index], labels[train_index]
+      x_valid, y_valid = dataset[val_index], labels[val_index]
+
+      train_dataset = utils.build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      validation_dataset = utils.build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+
+      model_copy = model_f(**parameters)
+      
+      model_copy.fit( train_dataset,
+                      epochs=epochs,
+                      verbose=0,
+                      batch_size = 50
+                    )
+      # The first metric must be the 0-1 loss
+      error += model_copy.evaluate(validation_dataset)[1]
+  return error/5
+
+def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int, batch_size: int):
+  """
+  This function perform a nested cross validation over the model_f passed,
+  applying a 5-fold split and retrieving the hyperparameter in hyperp with
+  the lowest average error among the hyperparameters selected by the internal 
+  5-fold cross validation
+  Params:
+  - model_f: the function to create the model
+  - parameters: the list of parameters used to create the model
+  - th: the name of the parameter that will be tuned
+  - dataset: the list of paths to the images
+  - labels: the list of labels
+  - epochs: the nubmer of epochs for the training
+  - hyperp: the list of the hyperparameter over which the nested cross validation is performed
+  - color_mode: 1 or 3
+
+  Return:
+  The hyperparameter with the lowest average error
+
+  """
+  kf = KFold(n_splits=3, shuffle=True, random_state=69)
+  final_theta = {i : [] for i in range(len(hyperp))}
+
+  for train_index, val_index in tqdm_notebook(kf.split(dataset, labels), desc = "Nested:"):
+
+      x_train, y_train = dataset[train_index], labels[train_index]
+      x_valid, y_valid = dataset[val_index], labels[val_index]
+      
+      error = math.inf
+      best_theta = 0
+
+      # Search for best theta with this fold
+      for i, theta in enumerate(hyperp):
+        parameters[th] = theta
+
+        error_ffcv = five_fold_cross_validation(model_f, parameters, x_train, y_train, epochs, color_mode, str(theta), batch_size = batch_size)
+
+        if error_ffcv < error:
+          error = error_ffcv
+          best_theta = i
+      
+      # Re-train over the whole training set and evaluate with test set
+      train_dataset = utils.build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      test_dataset = utils.build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+
+      parameters[th] = hyperp[best_theta]
+      model = model_f(**parameters)
+      model.fit(train_dataset,
+                epochs=epochs,
+                verbose=0,
+                batch_size = batch_size
+               )
+      
+      final_theta[best_theta].append(model.evaluate(test_dataset, verbose = 0))
+  final_theta = {k : np.mean(final_theta[k]) if len(final_theta[k]) > 0 else math.inf for k in final_theta.keys()}
+  return hyperp[min(final_theta, key = final_theta.get)], final_theta
