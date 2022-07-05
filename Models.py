@@ -20,6 +20,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
+def zero_one_loss(y_true, y_predict):
+  """
+  This function perform the zero-one evaluation over the passed labels
+  Parameters:
+    - y_true: the true value 
+    - y_predict: the prediction
+  Returns:
+  The errors, 1 if the real value and the prediction are different, 0 otherwise
+  """
+  y = tf.math.round(y_predict)
+  return tf.not_equal(y_true, y)
+
+  
 def binary_FFNN_model(encoder: Model,
                       input_shape,
                       hidden_layers: list,
@@ -164,14 +178,4 @@ def build_autoencoder(img_shape, code_size):
 
     return autoencoder, encoder
 
-def zero_one_loss(y_true, y_predict):
-  """
-  This function perform the zero-one evaluation over the passed labels
-  Parameters:
-    - y_true: the true value 
-    - y_predict: the prediction
-  Returns:
-  The errors, 1 if the real value and the prediction are different, 0 otherwise
-  """
-  y = tf.math.round(y_predict)
-  return tf.not_equal(y_true, y)
+
