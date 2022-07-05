@@ -81,7 +81,64 @@ def binary_FFNN_model(encoder: Model,
         metrics = metrs
     )
   return ffnn
+def binary_CNN_model( input_shape : int, 
+                      hidden_layers: list,
+                      hid_layers_act: str = 'ReLU',
+                      outp_layer_act: str = 'sigmoid',
+                      optimizer : Optimizer = SGD(learning_rate=.01, momentum = .9),
+                      loss: Loss = BinaryCrossentropy(),
+                      metrs: list = [ zero_one_loss,                                    
+                                      BinaryAccuracy()
+                                    ],
+                      kernel_size = (4, 4),
+                      dropout_size = .3
+                      ) -> Model:
+  """ 
+  Build the structure of the cnn classification model
+  Parameters:
+    - input_shape: the number of input that the model must handle
+    - hidden_layers: an iterator containing the amount of neurons in each hidden layer, the kernel size and the pooling size
+    - hid_layers_act: the activation function of the neurons in the hidden layers
+    - outp_layer_act: the activation function of the neurons in the output layer
+    - optimizer: the optimizer applied
+    - metrs: the list of metrics that will be retrieved by the .fit and .evaluate functions of the model
+    - kernel_size: the shape of the kernel and the pooling size
+    - dropout_size: the percentage of dropout
 
+  Return:
+    The compiled model
+  """   
+
+  # Definition of the input and output (dense) layer
+  
+  cnn = Sequential()
+  
+  input_layer = Input(shape = input_shape)
+  
+  # Define and compile the model
+  cnn.add(input_layer)
+  cnn.add(Rescaling(1./255))
+
+  for size in hidden_layers:
+
+    cnn.add(Conv2D(size, kernel_size = kernel_size, padding = 'same', activation="relu"))
+
+    cnn.add(MaxPool2D(kernel_size))
+    cnn.add(Dropout(dropout_size))
+
+  cnn.add(Flatten())
+
+  cnn.add(Dense(128, activation="relu"))
+  
+  output_layer = Dense(1, activation = outp_layer_act)
+  cnn.add(output_layer)
+
+  cnn.compile(
+        optimizer = optimizer,
+        loss = loss,
+        metrics = metrs
+    )
+  return cnn
 def build_autoencoder(img_shape, code_size):
     """
     This function build an autoecoder with a encoding layer of the given code_size.
