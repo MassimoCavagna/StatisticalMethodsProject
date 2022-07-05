@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 import json
+from sklearn.model_selection import KFold
+from tqdm.notebook import tqdm_notebook
+import math
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -127,7 +130,7 @@ def save_json_history(filename: str, histories: dict, key: str):
       print("File saved")
       f.close()
       
-def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels: list, epochs: int = 10, color_mode: int = 3, desc: str = "", batch_size: int = 50):
+def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels: list, epochs: int = 10, color_mode: int = 3, desc: str = "", batch_size: int = 50, img_size = (75,75)):
   """
   This function perform a five fold cross validation over the model_f passed,
   retrieving average error obtained
@@ -141,7 +144,7 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
   - desc: the description of for the progress bar
   - color_mode: 1 or 3
   - batch_size: the batch size
-
+  - img_size: a tuple of the size of the images
   Return:
   The average error of model_f with the specified parameters
 
@@ -154,8 +157,8 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
       x_train, y_train = dataset[train_index], labels[train_index]
       x_valid, y_valid = dataset[val_index], labels[val_index]
 
-      train_dataset = utils.build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
-      validation_dataset = utils.build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      train_dataset = build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      validation_dataset = build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
 
       model_copy = model_f(**parameters)
       
@@ -168,7 +171,7 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
       error += model_copy.evaluate(validation_dataset)[1]
   return error/5
 
-def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int, batch_size: int):
+def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int, batch_size: int, img_size):
   """
   This function perform a nested cross validation over the model_f passed,
   applying a 5-fold split and retrieving the hyperparameter in hyperp with
@@ -183,6 +186,7 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
   - epochs: the nubmer of epochs for the training
   - hyperp: the list of the hyperparameter over which the nested cross validation is performed
   - color_mode: 1 or 3
+  - img_size: a tuple of the size of the images
 
   Return:
   The hyperparameter with the lowest average error
@@ -210,8 +214,8 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
           best_theta = i
       
       # Re-train over the whole training set and evaluate with test set
-      train_dataset = utils.build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
-      test_dataset = utils.build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      train_dataset = build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      test_dataset = build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
 
       parameters[th] = hyperp[best_theta]
       model = model_f(**parameters)
