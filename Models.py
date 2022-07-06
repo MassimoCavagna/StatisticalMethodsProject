@@ -105,7 +105,8 @@ def binary_CNN_model( input_shape : int,
                                       BinaryAccuracy()
                                     ],
                       kernel_size = (4, 4),
-                      dropout_size = .3
+                      pool_size = (4, 4),
+                      dropout_size = .1
                       ) -> Model:
   """ 
   Build the structure of the cnn classification model
