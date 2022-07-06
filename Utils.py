@@ -168,7 +168,7 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
                       batch_size = 50
                     )
       # The first metric must be the 0-1 loss
-      error += model_copy.evaluate(validation_dataset)[1]
+      error += model_copy.evaluate(validation_dataset, verbose = 0)[1]
   return error/5
 
 def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int, batch_size: int, img_size):
