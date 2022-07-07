@@ -225,6 +225,6 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
                 batch_size = batch_size
                )
       
-      final_theta[best_theta].append(model.evaluate(test_dataset, verbose = 0))
+      final_theta[best_theta].append(model.evaluate(test_dataset, verbose = 0)[1])
   final_theta = {k : np.mean(final_theta[k]) if len(final_theta[k]) > 0 else math.inf for k in final_theta.keys()}
   return hyperp[min(final_theta, key = final_theta.get)], final_theta
