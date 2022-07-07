@@ -74,7 +74,7 @@ def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1):
   data = tf.image.resize(data, target_size)
   image = tf.reshape(data, target_size + (color_mode, ) )
  
-  return (image, label) if not encoder_mode else (image, image)
+  return (image, label)
 
 def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (75, 75)):
   """
