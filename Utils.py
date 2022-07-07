@@ -55,7 +55,7 @@ def plot_history(histories : list, title : str, same_figure = False):
     if not is_val_empty:
       sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["red"]*len(histories), len(histories)))
     
-def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1, encoder_mode: bool = False):
+def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1):
   """
   This function is used to read an image by its path, convert it to jpeg and resize it to the given target size.
   
@@ -76,7 +76,7 @@ def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1, 
  
   return (image, label) if not encoder_mode else (image, image)
 
-def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (75, 75), encoder_mode: bool = False):
+def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (75, 75)):
   """
   This function uses "mapping function" to build the images dataset
 
@@ -85,7 +85,6 @@ def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (
     - labels: the associated labels
     - batch_size: the size of the batches the Dataset is divided into
     - target_size: the final size the image will have
-    - encoder_mode: by setting this to True, the labels corresponds to the image itself
 
   Returns:
     A tensorflow Dataset
@@ -93,7 +92,6 @@ def build_dataset(data, labels, color_mode = 1, batch_size = 50, target_size = (
   dataset = tf.data.Dataset.from_tensor_slices((data, labels))\
                             .map(
                                   lambda data, label: mapping_function( data, label, 
-                                                                        encoder_mode = encoder_mode,
                                                                         target_size = target_size,
                                                                         color_mode = color_mode
                                                                       ), 
@@ -143,7 +141,6 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
   - color_mode: the number of channel of the iamge (1 or 3)
   - desc: the description of for the progress bar
   - color_mode: 1 or 3
-  - batch_size: the batch size
   - img_size: a tuple of the size of the images
   Return:
   The average error of model_f with the specified parameters
@@ -157,8 +154,8 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
       x_train, y_train = dataset[train_index], labels[train_index]
       x_valid, y_valid = dataset[val_index], labels[val_index]
 
-      train_dataset = build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
-      validation_dataset = build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      train_dataset = build_dataset(x_train, y_train,target_size = img_size, color_mode = color_mode)
+      validation_dataset = build_dataset(x_valid, y_valid, target_size = img_size, color_mode = color_mode)
 
       model_copy = model_f(**parameters)
       
@@ -214,8 +211,8 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
           best_theta = i
       
       # Re-train over the whole training set and evaluate with test set
-      train_dataset = build_dataset(x_train, y_train, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
-      test_dataset = build_dataset(x_valid, y_valid, encoder_mode = False, target_size = img_size, color_mode = color_mode, batch_size = batch_size)
+      train_dataset = build_dataset(x_train, y_train, target_size = img_size, color_mode = color_mode)
+      test_dataset = build_dataset(x_valid, y_valid, target_size = img_size, color_mode = color_mode)
 
       parameters[th] = hyperp[best_theta]
       model = model_f(**parameters)
