@@ -130,7 +130,7 @@ def save_json_history(filename: str, histories: dict, key: str):
       print("File saved")
       f.close()
       
-def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels: list, epochs: int = 10, color_mode: int = 3, desc: str = "", batch_size: int = 50, img_size = (75,75)):
+def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels: list, epochs: int = 10, color_mode: int = 3, desc: str = "", img_size = (75,75)):
   """
   This function perform a five fold cross validation over the model_f passed,
   retrieving average error obtained
@@ -171,7 +171,7 @@ def five_fold_cross_validation(model_f, parameters: dict, dataset: list, labels:
       error += model_copy.evaluate(validation_dataset, verbose = 0)[1]
   return error/5
 
-def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int, batch_size: int, img_size):
+def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list, labels : list, epochs : int, hyperp : list, color_mode : int = 3, img_size = (75, 75)):
   """
   This function perform a nested cross validation over the model_f passed,
   applying a 5-fold split and retrieving the hyperparameter in hyperp with
@@ -207,7 +207,7 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
       for i, theta in enumerate(hyperp):
         parameters[th] = theta
 
-        error_ffcv = five_fold_cross_validation(model_f, parameters, x_train, y_train, epochs, color_mode, str(theta), batch_size = batch_size)
+        error_ffcv = five_fold_cross_validation(model_f, parameters, x_train, y_train, epochs, color_mode, str(theta))
 
         if error_ffcv < error:
           error = error_ffcv
