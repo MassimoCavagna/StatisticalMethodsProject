@@ -39,7 +39,7 @@ def binary_FFNN_model(encoder: Model,
                       hidden_layers: list,
                       hid_layers_act: str = 'ReLU',
                       outp_layer_act: str = 'sigmoid',
-                      optimizer : Optimizer = Adam(learning_rate=.01),
+                      optimizer : Optimizer = SGD(learning_rate = 0.2),
                       loss: Loss = BinaryCrossentropy(),
                       metrs: list = [
                                         BinaryAccuracy(),
@@ -51,7 +51,7 @@ def binary_FFNN_model(encoder: Model,
                                         FalsePositives(),
                                         FalseNegatives()
                                       ],
-                      dropout = .3
+                      dropout = .2
                       
                       ) -> Model:
   """ 
@@ -99,7 +99,7 @@ def binary_CNN_model( input_shape : int,
                       hidden_layers: list,
                       hid_layers_act: str = 'ReLU',
                       outp_layer_act: str = 'sigmoid',
-                      optimizer : Optimizer = SGD(learning_rate=.01, momentum = .9),
+                      optimizer : Optimizer = SGD(learning_rate = 0.01, momentum = 0.9),
                       loss: Loss = BinaryCrossentropy(),
                       metrs: list = [ zero_one_loss,                                    
                                       BinaryAccuracy()
