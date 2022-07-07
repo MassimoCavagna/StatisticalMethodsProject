@@ -219,7 +219,7 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
       model.fit(train_dataset,
                 epochs=epochs,
                 verbose=0,
-                batch_size = batch_size
+                batch_size = 50
                )
       
       final_theta[best_theta].append(model.evaluate(test_dataset, verbose = 0)[1])
