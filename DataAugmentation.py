@@ -2,6 +2,7 @@ from PIL import Image, ImageChops, UnidentifiedImageError, ImageOps, ImageFilter
 import os
 import numpy as np
 from tqdm.notebook import tqdm_notebook
+import random
 
 def extract_random_images(source_path : str, per : float = .1) -> list:
   """
