@@ -14,9 +14,9 @@ def extract_random_images(source_path : str, per : float = .1) -> list:
   list of images named extracted
   """
   if per >= 0.0 and per <= 1.0:
-    images = np.array(os.listdir(source_path))
-    selection = np.random.randint(0, len(images), round(len(images)*per))
-    return [source_path + image_name for image_name in images[selection]]
+    images = os.listdir(source_path)
+    selection = random.sample(images, round(len(images)*per))
+    return [source_path + image_name for image_name in selection]
   else:
     raise Exception('Invalid per value: it must be a float between 0 and 1')
 
