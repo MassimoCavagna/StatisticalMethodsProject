@@ -248,4 +248,4 @@ def read_images_names(path : str = "Data/"):
   images_paths = images_paths[indices]
   images_labels = images_labels[indices]
 
-  return images_paths, iamges_labels
+  return images_paths, images_labels
