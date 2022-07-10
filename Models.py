@@ -34,8 +34,7 @@ def zero_one_loss(y_true, y_predict):
   return tf.not_equal(y_true, y)
 
   
-def binary_FFNN_model(encoder: Model,
-                      input_shape,
+def binary_MLNN_model(input_shape,
                       hidden_layers: list,
                       hid_layers_act: str = 'ReLU',
                       outp_layer_act: str = 'sigmoid',
@@ -57,7 +56,6 @@ def binary_FFNN_model(encoder: Model,
   """ 
   Build the structure of the ffnn model
   Parameters:
-    - encoder: a pre trained encoder which filters out the images
     - input_shape: the number of input that the model must handle
     - hidden_layers: an iterator containing the amount of neurons in each hidden layer
     - hid_layers_act: the activation function of the neurons in the hidden layers,
@@ -70,12 +68,8 @@ def binary_FFNN_model(encoder: Model,
 
   # Definition of the input and output (dense) layer
   input_layer = Input(shape = input_shape)
-  if encoder:
-    for k,v in encoder._get_trainable_state().items():
-      k.trainable = False
-    pre = encoder(input_layer)
-  else:
-    pre = Flatten()(input_layer)
+  
+  pre = Flatten()(input_layer)
   
   hidden = Rescaling(1./255)(pre)
   
@@ -86,15 +80,16 @@ def binary_FFNN_model(encoder: Model,
     hidden = Dense(i, activation = hid_layers_act)(hidden)
     
   output_layer = Dense(1, activation = outp_layer_act)
-  ffnn = Model(inputs = input_layer, outputs = output_layer(hidden))
+  mlnn = Model(inputs = input_layer, outputs = output_layer(hidden))
 
 
-  ffnn.compile(
+  mlnn.compile(
         optimizer = optimizer,
         loss = loss,
         metrics = metrs
     )
-  return ffnn
+  return mlnn
+
 def binary_CNN_model( input_shape : int, 
                       hidden_layers: list,
                       hid_layers_act: str = 'ReLU',
@@ -154,29 +149,6 @@ def binary_CNN_model( input_shape : int,
         metrics = metrs
     )
   return cnn
-def build_autoencoder(img_shape, code_size):
-    """
-    This function build an autoecoder with a encoding layer of the given code_size.
-    Parameters:
-      - img_shape: the image shape used in the input and output layer of the model
-      - code_size: the number of neurons used to encode the image
-    Returns:
-      - The compiled autoencoder and the compiled encoder
-    """
 
-    encoder_input = Input(shape = img_shape)
-    encoder = Flatten()(encoder_input)
-    encoder_output = Dense(code_size)(encoder)
-
-    encoder = Model(encoder_input, encoder_output, name = 'Encoder')
-
-    decoder = Dense(np.prod(img_shape))(encoder_output)
-    reconstruction = Reshape(img_shape)(decoder)
-
-
-    autoencoder = Model(encoder_input,reconstruction, name = 'AutoEncoder')
-    autoencoder.compile(optimizer='adamax', loss='mse')
-
-    return autoencoder, encoder
 
 
