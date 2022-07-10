@@ -225,3 +225,27 @@ def nested_cross_validation(model_f, parameters : dict, th : str, dataset : list
       final_theta[best_theta].append(model.evaluate(test_dataset, verbose = 0)[1])
   final_theta = {k : np.mean(final_theta[k]) if len(final_theta[k]) > 0 else math.inf for k in final_theta.keys()}
   return hyperp[min(final_theta, key = final_theta.get)], final_theta
+
+def read_images_names(path : str = "Data/"):
+  """
+  This function retrieve the list of the names of the files in the two subfolders 'Cats' and 'Dogs' 
+  at the specified path
+  Params:
+  - path: the path to the folder that contains the 'Cats' and 'Dogs' subsfolders
+
+  Return:
+  The list containing the names of the images in the 'Cats' and 'Dogs' subfolders
+  """
+  cats = list(set(map(lambda s : path + "Cats/" + s, os.listdir(path + "Cats/"))))
+  dogs = list(set(map(lambda s : path + "Dogs/" + s, os.listdir(path + "Dogs/"))))
+
+  images_paths = np.array(cats + dogs)
+  images_labels = np.array([0]*len(cats) + [1]*len(dogs))
+
+  indices = np.arange(images_paths.shape[0])
+  np.random.shuffle(indices)
+
+  images_paths = images_paths[indices]
+  images_labels = images_labels[indices]
+
+  return images_paths, iamges_labels
