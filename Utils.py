@@ -13,7 +13,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import History
 
 
-def plot_history(histories : list, title : str, same_figure = False):
+def plot_history(histories : list, title : str, group_names: list = None, same_figure = False):
   """
   This function is used to easily plot the history returned by any model in the form of a dictionary.
   For each metric it plots a lineplot describing the model's trend through all the epochs
@@ -25,18 +25,21 @@ def plot_history(histories : list, title : str, same_figure = False):
   
   df = pd.DataFrame()
 
-  for i, history in enumerate(histories):
+  if (group_names != None) and (len(histories) != len(group_names)):
+    raise Exception('The lenghts must be the same')
+
+  for history, i in zip(histories, group_names if group_names != None else list(range(len(histories)))):
     if type(history) != dict:
       history = history.history
 
     keys, val_keys = [k for k in history.keys() if "val_" not in k], [k for k in history.keys() if "val_" in k]
 
     data = pd.DataFrame({k : history[k] for k in keys}, columns = keys)
-    data["type"] = "T_" + str(i) + "_fold"
+    data["type"] = "T_" + str(i)
     data["epoch"] = list(range(len(data["type"])))
 
     val_data = pd.DataFrame({k.replace("val_", "") : history[k] for k in val_keys}, columns = keys)
-    val_data["type"] = "V_" + str(i) + "_fold"
+    val_data["type"] = "V_" + str(i)
     val_data["epoch"] = list(range(len(val_data["type"])))
 
     if df.empty:
@@ -48,14 +51,24 @@ def plot_history(histories : list, title : str, same_figure = False):
     
   df.sort_values(by=['type'], inplace = True)
   df.reset_index(drop=True)
+
   for i, k in enumerate(df.columns[0:-2]):
     n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V', case=False)]) > 0 else (df.shape[0]-1, True)
     plt.subplot(1, len(df.columns[0:-2]), 1 + i)
     plt.title(k)
-    sns.lineplot(data = df.iloc[:int(n)], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["blue"]*len(histories), len(histories)))
-    if not is_val_empty:
-      sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["red"]*len(histories), len(histories)))
+
+    if group_names == None:
+      sns.lineplot(data = df.iloc[:int(n)], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["blue"]*len(histories), len(histories)), legend = i == (len(df.columns[0:-2])-1))
+      if not is_val_empty:
+        sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette(["red"]*len(histories), len(histories)), legend = i == (len(df.columns[0:-2])-1))
     
+    else:
+      sns.lineplot(data = df.iloc[:int(n)], x = "epoch", y = k, hue = "type", palette = sns.color_palette("PuBu", len(histories)), legend = (i == (len(df.columns[0:-2])-1))) 
+      if not is_val_empty:
+        sns.lineplot(data = df.iloc[int(n+1):], x = "epoch", y = k, hue = "type", palette = sns.color_palette("OrRd", len(histories)), legend = (i == (len(df.columns[0:-2])-1)))
+    if (i == (len(df.columns[0:-2])-1)):  
+      plt.legend(bbox_to_anchor=(1.02, 0.73), loc='upper left', borderaxespad=0)  
+            
 def mapping_function(image_path, label, target_size = (75, 75), color_mode = 1):
   """
   This function is used to read an image by its path, convert it to jpeg and resize it to the given target size.
