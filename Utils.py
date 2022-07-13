@@ -13,10 +13,20 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import History
 
 
-def plot_history(histories : list, title : str, group_names: list = None, same_figure = False):
+def plot_history(histories : list, title : str, group_names: list = None, same_figure = False, figsize = (15,5)):
   """
   This function is used to easily plot the history returned by any model in the form of a dictionary.
   For each metric it plots a lineplot describing the model's trend through all the epochs
+  Parameters:
+  -histories: a list of histories or a dict containing different lists of histories, one for each key
+  -title: the title of the figure
+  -group_names: a list containing the name of each data in the histories dictionary (must match the lenght of histories).
+                By default it enumerates from 0 the different lines (one ofr each item in histories)
+  -same_figure: if the result must be contained in a single figure, or it must just be plotted without
+                intestation
+  figsize: the size of the resulting figure
+
+  Return: None
   """
   if same_figure:
     fig = plt.figure(figsize = (15,5))
