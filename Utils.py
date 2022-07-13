@@ -115,14 +115,14 @@ def save_json_history(filename: str, histories: dict, key: str):
   """
   if os.path.isfile(filename) is False:
     with open(filename, 'w') as f:
-      json.dump({key: [h.history if isinstance(History) else h for h in histories]}, f)
+      json.dump({key: [h.history if isinstance(h, History) else h for h in histories]}, f)
       print("New file saved")
       f.close()
   else:
     with open(filename, 'r') as f:
       results = json.load(f)
       f.close()
-      results[key] =  [h.history if isinstance(History) else h for h in histories]
+      results[key] =  [h.history if isinstance(h, History) else h for h in histories]
       
     with open(filename, 'w') as f:
       json.dump(results, f)
