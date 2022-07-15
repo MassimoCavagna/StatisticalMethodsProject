@@ -29,7 +29,7 @@ def plot_history(histories : list, title : str, same_figure = False, group_names
   Return: None
   """
   if same_figure:
-    fig = plt.figure(figsize = (15,5))
+    fig = plt.figure(figsize = figsize)
     fig.suptitle(title)
 
   
@@ -61,10 +61,10 @@ def plot_history(histories : list, title : str, same_figure = False, group_names
     
   df.sort_values(by=['type'], inplace = True)
   df.reset_index(drop=True)
-
+  print(df.columns)
   for i, k in enumerate(df.columns[0:-2]):
     n, is_val_empty = ((df.shape[0]/2)-1, False) if len(df[df.type.str.contains('V', case=False)]) > 0 else (df.shape[0]-1, True)
-    plt.subplot(1, len(df.columns[0:-2]), 1 + i)
+    plt.subplot((len(df.columns[0:-2])//3)+1, 3, 1 + i)
     plt.title(k)
 
     if group_names == None:
