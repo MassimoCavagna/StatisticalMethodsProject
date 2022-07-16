@@ -1,3 +1,5 @@
+[![Project](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1neB5a7YVcmhujoBpQtKC3P_TIDYD16Ij) The colab notebook containing the project
+
 # Statistical Methods for Machine Learning Project
 The main purpose of this project is to provide funtionalities for the image (binary) classification with different neural network structures and hyper-parameters in particular the multi-layered and convolutional neural network. 
 
